@@ -26,6 +26,9 @@ local IMG_WARNING = "rbxassetid://101887995655890"
 local IMG_HEADPHONES = "rbxassetid://127331347293592"
 
 -- === GUI SETUP ===
+
+game:GetService("StarterGui"):SetCoreGuiEnabled(Enum.CoreGuiType.All, false)
+
 local screenGui = Instance.new("ScreenGui")
 screenGui.Name = "IntroSequence"
 screenGui.ResetOnSpawn = false
@@ -110,13 +113,13 @@ IntroAmbience:Play()
 print("success: ambience")
 
 -- Bell SFX
-local BellSFX = Instance.new("Sound")
-BellSFX.Name = "BellSFX"
-BellSFX.SoundId = "rbxassetid://6891548543"
-BellSFX.Looped = false
-BellSFX.Volume = 0.5
-BellSFX.Parent = workspace
-print("success: bell sfx")
+local SFX = Instance.new("Sound")
+SFX.Name = "SFX"
+SFX.SoundId = "rbxassetid://134263165995764"
+SFX.Looped = false
+SFX.Volume = 0.5
+SFX.Parent = workspace
+print("success: sfx")
 
 -- General Ambience
 local GeneralAmbience = workspace:FindFirstChild("Ambience")
@@ -224,7 +227,10 @@ end
 
 -- Enable player controls
 enableControls()
-BellSFX:Play()
+SFX:Play()
+game:GetService("StarterGui"):SetCoreGuiEnabled(Enum.CoreGuiType.All, true)
+game:GetService("StarterGui"):SetCoreGuiEnabled(Enum.CoreGuiType.Backpack, false)
+game:GetService("StarterGui"):SetCoreGuiEnabled(Enum.CoreGuiType.EmotesMenu, false)
 print("success: enabled movement")
 
 -- Crossfade music and fade GUI
@@ -248,7 +254,7 @@ for _, tween in ipairs(headphonesTweenOut) do tween:Play() end
 while tick() - startTime < fadeTime do
 	local progress = (tick() - startTime) / fadeTime
 	IntroAmbience.Volume = 0.23 * (1 - progress)
-	BellSFX.Volume = .5 * (1 - progress)
+	SFX.Volume = .5 * (1 - progress)
 	if GeneralAmbience then
 		GeneralAmbience.Volume = 0.23 * progress
 	end
@@ -257,6 +263,7 @@ end
 
 IntroAmbience.Volume = 0
 IntroAmbience:Stop()
+SFX:Stop()
 if GeneralAmbience then
 	GeneralAmbience.Volume = 0.23
 end
