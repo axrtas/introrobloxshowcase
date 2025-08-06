@@ -1,0 +1,264 @@
+print([[
+
+		INTRO LOADED
+		Developed by @SirMatees
+		All rights reserved.
+
+]])
+
+local TweenService = game:GetService("TweenService")
+local Players = game:GetService("Players")
+local MarketplaceService = game:GetService("MarketplaceService")
+local UserInputService = game:GetService("UserInputService")
+local ContextActionService = game:GetService("ContextActionService")
+
+local player = Players.LocalPlayer
+local playerGui = player:WaitForChild("PlayerGui")
+
+-- Get game info
+local gameInfo = MarketplaceService:GetProductInfo(game.PlaceId)
+local gameName = gameInfo.Name
+
+-- === IMAGE IDs ===
+local IMG_ROLEVE = "rbxassetid://112569692279861"
+local IMG_GAME = "rbxassetid://8643051623"
+local IMG_WARNING = "rbxassetid://101887995655890"
+local IMG_HEADPHONES = "rbxassetid://127331347293592"
+
+-- === GUI SETUP ===
+local screenGui = Instance.new("ScreenGui")
+screenGui.Name = "IntroSequence"
+screenGui.ResetOnSpawn = false
+screenGui.IgnoreGuiInset = true
+screenGui.Parent = playerGui
+
+local background = Instance.new("Frame")
+background.Size = UDim2.new(1, 0, 1, 0)
+background.BackgroundColor3 = Color3.new(0, 0, 0)
+background.BackgroundTransparency = 0
+background.Parent = screenGui
+
+local container = Instance.new("Frame")
+container.Size = UDim2.new(1, 0, 1, 0)
+container.BackgroundTransparency = 1
+container.Parent = background
+
+local layout = Instance.new("UIListLayout")
+layout.FillDirection = Enum.FillDirection.Vertical
+layout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+layout.VerticalAlignment = Enum.VerticalAlignment.Center
+layout.Padding = UDim.new(0, 10)
+layout.Parent = container
+
+-- Image
+local icon = Instance.new("ImageLabel")
+icon.Size = UDim2.new(0.25, 0, 0.25, 0)
+icon.BackgroundTransparency = 1
+icon.ImageTransparency = 1
+icon.ScaleType = Enum.ScaleType.Fit
+icon.Parent = container
+
+local iconCorner = Instance.new("UICorner")
+iconCorner.CornerRadius = UDim.new(0.15, 0)
+iconCorner.Parent = icon
+
+-- Subtitle
+local subtitleLabel = Instance.new("TextLabel")
+subtitleLabel.Size = UDim2.new(0.8, 0, 0, 20)
+subtitleLabel.BackgroundTransparency = 1
+subtitleLabel.TextColor3 = Color3.fromRGB(180, 180, 180)
+subtitleLabel.Font = Enum.Font.Montserrat
+subtitleLabel.RichText = true
+subtitleLabel.TextScaled = true
+subtitleLabel.TextWrapped = true
+subtitleLabel.TextTransparency = 1
+subtitleLabel.Parent = container
+
+-- Main text
+local textLabel = Instance.new("TextLabel")
+textLabel.Size = UDim2.new(0.8, 0, 0, 50)
+textLabel.BackgroundTransparency = 1
+textLabel.TextColor3 = Color3.new(1, 1, 1)
+textLabel.Font = Enum.Font.Montserrat
+textLabel.RichText = true
+textLabel.TextScaled = true
+textLabel.TextWrapped = true
+textLabel.TextTransparency = 1
+textLabel.Parent = container
+
+-- Continue message
+local continueLabel = Instance.new("TextLabel")
+continueLabel.Size = UDim2.new(0.8, 0, 0, 25)
+continueLabel.BackgroundTransparency = 1
+continueLabel.TextColor3 = Color3.fromRGB(50, 50, 50)
+continueLabel.Font = Enum.Font.Montserrat
+continueLabel.RichText = true
+continueLabel.TextScaled = true
+continueLabel.TextWrapped = true
+continueLabel.TextTransparency = 1
+continueLabel.Text = "Press any key to proceed..."
+continueLabel.Parent = container
+
+-- Intro Ambience
+local IntroAmbience = Instance.new("Sound")
+IntroAmbience.Name = "IntroAmbience"
+IntroAmbience.SoundId = "rbxassetid://128100424893826"
+IntroAmbience.Looped = true
+IntroAmbience.Volume = 0.23
+IntroAmbience.Parent = workspace
+IntroAmbience:Play()
+print("success: ambience")
+
+-- Bell SFX
+local BellSFX = Instance.new("Sound")
+BellSFX.Name = "BellSFX"
+BellSFX.SoundId = "rbxassetid://6891548543"
+BellSFX.Looped = false
+BellSFX.Volume = 0.5
+BellSFX.Parent = workspace
+print("success: bell sfx")
+
+-- General Ambience
+local GeneralAmbience = workspace:FindFirstChild("Ambience")
+
+-- === DISABLE & ENABLE PLAYER CONTROLS ===
+local function disableControls()
+	local character = player.Character or player.CharacterAdded:Wait()
+	local humanoid = character:WaitForChild("Humanoid")
+
+	humanoid.WalkSpeed = 0
+	humanoid.JumpPower = 0
+	print("success: disabled movement")
+
+	local function blockAction(actionName, inputState, inputObject)
+		return Enum.ContextActionResult.Sink
+	end
+
+	ContextActionService:BindAction("BlockJump", blockAction, false, Enum.KeyCode.Space)
+end
+
+local function enableControls()
+	local character = player.Character
+	if character then
+		local humanoid = character:FindFirstChild("Humanoid")
+		if humanoid then
+			humanoid.WalkSpeed = 7
+			humanoid.JumpPower = 50
+		end
+	end
+	ContextActionService:UnbindAction("BlockJump")
+end
+
+disableControls()
+
+-- === FADE FUNCTION ===
+local function showSlide(imageId, message, holdTime, subtitle)
+	icon.Image = imageId
+	textLabel.Text = message
+	subtitleLabel.Text = subtitle or ""
+	subtitleLabel.TextTransparency = 1
+
+	local tweens = {}
+	table.insert(tweens, TweenService:Create(icon, TweenInfo.new(1), {ImageTransparency = 0}))
+	table.insert(tweens, TweenService:Create(textLabel, TweenInfo.new(1), {TextTransparency = 0}))
+	if subtitle and subtitle ~= "" then
+		table.insert(tweens, TweenService:Create(subtitleLabel, TweenInfo.new(1), {TextTransparency = 0}))
+	end
+	for _, tween in ipairs(tweens) do tween:Play() end
+	tweens[#tweens].Completed:Wait()
+
+	task.wait(holdTime)
+
+	tweens = {}
+	table.insert(tweens, TweenService:Create(icon, TweenInfo.new(1), {ImageTransparency = 1}))
+	table.insert(tweens, TweenService:Create(textLabel, TweenInfo.new(1), {TextTransparency = 1}))
+	if subtitle and subtitle ~= "" then
+		table.insert(tweens, TweenService:Create(subtitleLabel, TweenInfo.new(1), {TextTransparency = 1}))
+	end
+	for _, tween in ipairs(tweens) do tween:Play() end
+	tweens[#tweens].Completed:Wait()
+end
+
+-- === SEQUENCE ===
+task.wait(1)
+showSlide(IMG_ROLEVE, "Roleve Incorporation", 2, "Made by") print("success: developer intro part")
+showSlide(IMG_GAME, gameName, 2, "Introducing") print("success: game intro part")
+showSlide(IMG_WARNING,
+    [[<b>THIS GAME CONTAINS <font color="rgb(255,90,90)">STRONG IMAGES</font>, <font color="rgb(255,90,90)">SCARY SCENES</font>, AND <font color="rgb(255,90,90)">FLASHING LIGHTS</font>.</b>
+
+<font color="rgb(190,255,100)">The game is still in alpha, some contents may change.<br/>
+For better experience, please put on <b>max graphics</b>.</font>]],
+	6
+) print("success: warning intro part")
+
+-- Headphones slide
+icon.Image = IMG_HEADPHONES
+textLabel.Text = "USE HEADPHONES FOR <b>BETTER</b> EXPERIENCE"
+subtitleLabel.Text = ""
+subtitleLabel.TextTransparency = 1
+print("success: headphones intro part")
+local headphonesTweenIn = {
+	TweenService:Create(icon, TweenInfo.new(1), {ImageTransparency = 0}),
+	TweenService:Create(textLabel, TweenInfo.new(1), {TextTransparency = 0}),
+}
+for _, tween in ipairs(headphonesTweenIn) do tween:Play() end
+headphonesTweenIn[#headphonesTweenIn].Completed:Wait()
+
+task.wait(1.5)
+local continueTween = TweenService:Create(continueLabel, TweenInfo.new(2), {TextTransparency = 0})
+continueTween:Play()
+
+-- Wait for any input (keyboard, mouse, touch, or gamepad)
+local inputReceived = false
+local inputConn
+inputConn = UserInputService.InputBegan:Connect(function(input, gameProcessed)
+	if not inputReceived then
+		inputReceived = true
+		inputConn:Disconnect()
+	end
+end)
+
+while not inputReceived do
+	task.wait()
+end
+
+-- Enable player controls
+enableControls()
+BellSFX:Play()
+print("success: enabled movement")
+
+-- Crossfade music and fade GUI
+local fadeTime = 5
+local startTime = tick()
+
+if GeneralAmbience and not GeneralAmbience.IsPlaying then
+	GeneralAmbience.Volume = 0
+	GeneralAmbience:Play()
+end
+
+local headphonesTweenOut = {
+	TweenService:Create(icon, TweenInfo.new(fadeTime), {ImageTransparency = 1}),
+	TweenService:Create(textLabel, TweenInfo.new(fadeTime), {TextTransparency = 1}),
+	TweenService:Create(continueLabel, TweenInfo.new(fadeTime), {TextTransparency = 1}),
+	TweenService:Create(background, TweenInfo.new(fadeTime), {BackgroundTransparency = 1}),
+}
+
+for _, tween in ipairs(headphonesTweenOut) do tween:Play() end
+
+while tick() - startTime < fadeTime do
+	local progress = (tick() - startTime) / fadeTime
+	IntroAmbience.Volume = 0.23 * (1 - progress)
+	BellSFX.Volume = .5 * (1 - progress)
+	if GeneralAmbience then
+		GeneralAmbience.Volume = 0.23 * progress
+	end
+	task.wait()
+end
+
+IntroAmbience.Volume = 0
+IntroAmbience:Stop()
+if GeneralAmbience then
+	GeneralAmbience.Volume = 0.23
+end
+
+screenGui:Destroy()
