@@ -28,6 +28,7 @@ local IMG_HEADPHONES = "rbxassetid://127331347293592"
 -- === GUI SETUP ===
 
 game:GetService("StarterGui"):SetCoreGuiEnabled(Enum.CoreGuiType.All, false)
+print("success: ui disabled")
 
 local screenGui = Instance.new("ScreenGui")
 screenGui.Name = "IntroSequence"
@@ -232,6 +233,7 @@ game:GetService("StarterGui"):SetCoreGuiEnabled(Enum.CoreGuiType.All, true)
 game:GetService("StarterGui"):SetCoreGuiEnabled(Enum.CoreGuiType.Backpack, false)
 game:GetService("StarterGui"):SetCoreGuiEnabled(Enum.CoreGuiType.EmotesMenu, false)
 print("success: enabled movement")
+print("success: ui enabled")
 
 -- Crossfade music and fade GUI
 local fadeTime = 5
